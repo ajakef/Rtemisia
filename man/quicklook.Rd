@@ -2,7 +2,7 @@
 \alias{quicklook}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Quickly summarize a dataset by plotting CO2, temperature, RH, and battery voltage
 }
 \description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~

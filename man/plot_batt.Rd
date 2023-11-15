@@ -1,8 +1,7 @@
 \name{plot_batt}
 \alias{plot_batt}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Plot battery voltage over time
 }
 \description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~

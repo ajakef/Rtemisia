@@ -1,8 +1,7 @@
 \name{plot_key}
 \alias{plot_key}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Plot all fields in the dataset matching an input key
 }
 \description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~

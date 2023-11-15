@@ -1,8 +1,7 @@
 \name{plot_CO2}
 \alias{plot_CO2}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Plot CO2 concentration over time
 }
 \description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~

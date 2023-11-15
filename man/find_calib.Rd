@@ -2,7 +2,7 @@
 \alias{find_calib}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Find the time when self-calibration steps occur
 }
 \description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~

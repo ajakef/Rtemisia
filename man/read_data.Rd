@@ -2,7 +2,7 @@
 \alias{read_data}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Read a set of data files specified by wildcards
 }
 \description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
