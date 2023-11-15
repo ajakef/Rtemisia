@@ -1,7 +1,35 @@
+#' Correct calibration steps for all sensors
+#'
+#' Data may include approximately weekly "steps" where the CO2 reading changes 
+#' abruptly as part of the sensor's self-calibration routine. For underground
+#' recording, this is undesirable and must be corrected using this function.
+#' Step detections involve manual review using the function's basic GUI to
+#' prevent false positives from being counted.
+#'
+#' @param df Data frame to plot (output of [read_data()])
+#' @details This function uses a very basic GUI to accept or reject detected
+#' steps. For each step, left-click the plot to accept it, or right-click to
+#' reject. Reject rates of 50% or more are plausible and not cause for concern.
+#' After all detections for a sensor are reviewed, the original and
+#' corrected data will be plotted; if you made any mistakes, you can reject it
+#' by right clicking (and re-do the review for that sensor), or left-click to
+#' accept the corrected data and move on to the next sensor. This is only needed
+#' for CO2 data, not for temperature or humidity. Note that ctrl-c does not
+#' work immediately in interactive mode; it takes effect after the next right
+#' click.
+#' @return data frame with calibration steps corrected
+#' @export
+#' @examples
+#' fix_calibration()
+
 
 fix_calibrations = function(df){
-  for(i in 0:5){
-    key = paste0('CO2_ppm_', i)
+  steps_corrected = list()
+  key_indices = grep('CO2', names(df))
+  keys = names(df)[key_indices]
+
+  for(key in keys){
+    #key = paste0('CO2_ppm_', i)
     print(paste('Correcting channel', key))
     y = df[[key]]
     x = df$time
@@ -30,7 +58,9 @@ fix_calibrations = function(df){
         print(paste('Rejected corrections; re-doing channel', key))
       }
     }
+    steps_corrected[[key]] = list(x = x[steps_reviewed$i], y = steps_reviewed$y)
   }
+  attr(df, 'steps_corrected') = steps_corrected
   return(df)
 }
 

@@ -1,3 +1,27 @@
+#' Plot one data type for all sensors
+#'
+#' plot_CO2, plot_temp, and plot_RH are all wrappers for plot_key. All of them
+#' include an optional GUI to zoom in on regions of interest (disable with
+#' "interactive = FALSE")
+#'
+#' @param x Data frame to plot (output of [read_data()])
+#' @param key plot fields in data frame whose names contain key
+#' @param xlim x-limits for plot (seconds after Jan 1 1970; default range(x$time))
+#' @param ylim y-limits to plot (default full range of fields that are plotted)
+#' @param interactive if TRUE, allow zooming in using a very basic GUI
+#' @param medfilt_radius If nonzero, radius of window for median filter (helps eliminate spurious spikes in data)
+#' @param ... additional arguments to pass to plot()
+#' @details In interactive mode, the plot functions use a very basic GUI to
+#' navigate. Clicking twice at opposite corners of a region of interest will 
+#' zoom to the x and y limits clicked. Clicking left once followed by a right
+#' click will return to the original x and y limits. Finally, a single right
+#' click will quit the GUI and return control to the command line. Note that
+#' ctrl-c does not work immediately in interactive mode; it takes effect after
+#' the next right click.
+#' @return None
+#' @examples
+#' plot_key(x, key = 'CO2', interactive = FALSE)
+
 plot_key = function(x, key, xlim = NULL, ylim = NULL, interactive = TRUE, medfilt_radius = 18, ...){
   if(medfilt_radius >= 1){
     x = medfilt_nan(x, n = 1 + 2 * medfilt_radius)
@@ -37,9 +61,43 @@ plot_key = function(x, key, xlim = NULL, ylim = NULL, interactive = TRUE, medfil
 
 
 
+#' Plot one data type for all sensors
+#'
+#' plot_CO2, plot_temp, and plot_RH are all wrappers for plot_key. All of them
+#' include an optional GUI to zoom in on regions of interest (disable with
+#' "interactive = FALSE")
+#'
+#' @param x Data frame to plot (output of [read_data()])
+#' @param medfilt_radius If nonzero, radius of window for median filter (helps eliminate spurious spikes in data)
+#' @param ... additional arguments to pass to plot_key() or plot()
+#' @details In interactive mode, the plot functions use a very basic GUI to
+#' navigate. Clicking twice at opposite corners of a region of interest will 
+#' zoom to the x and y limits clicked. Clicking left once followed by a right
+#' click will return to the original x and y limits. Finally, a single right
+#' click will quit the GUI and return control to the command line. Note that
+#' ctrl-c does not work immediately in interactive mode; it takes effect after
+#' the next right click.
+#' @return None
+#' @name plots
+
+#' @rdname plots
+#' @examples
+#' plot_CO2()
 plot_CO2 = function(x, medfilt_radius = 30, ...) plot_key(x, 'CO2', medfilt_radius = medfilt_radius, ...)
+
+#' @rdname plots
+#' @examples
+#' plot_temp()
 plot_temp = function(x, medfilt_radius = 30, ...) plot_key(x, 'temp', medfilt_radius = medfilt_radius, ...) 
+
+#' @rdname plots
+#' @examples
+#' plot_RH()
 plot_RH = function(x, medfilt_radius = 30, ...) plot_key(x, 'RH', medfilt_radius = medfilt_radius, ...)
+
+#' @rdname plots
+#' @examples
+#' plot_batt()
 plot_batt = function(x, medfilt_radius = 30, ...) plot_key(x, 'batt', medfilt_radius = medfilt_radius, ...)
 
 
@@ -52,6 +110,7 @@ plot_batt = function(x, medfilt_radius = 30, ...) plot_key(x, 'batt', medfilt_ra
 #' @seealso [plot_CO2], [plot_temp], [plot_RH], [plot_key]
 #' @export
 #' @examples
+#' quicklook()
 quicklook = function(x){
   if(is.character(x)){
     x = read_data(x)
