@@ -89,7 +89,9 @@ review_steps = function(x, y, steps){
   output = list(i = numeric(), y = numeric())
   for(i in steps$i){
     par(mfrow = c(2, 1), mar = c(3,3,3,2), mgp = c(1.75, 0.5, 0))
-    plot(x, y, pch = '.')
+    N = 10
+    w = N * (1:(length(x)/N))
+    plot(x[w], y[w], pch = '.')
     for(j in steps$i){
       abline(v = as.numeric(x[j]), col = 'blue', lty = 'dashed', lwd = 2)
     }
