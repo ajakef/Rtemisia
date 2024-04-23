@@ -81,21 +81,25 @@ plot_key = function(x, key, xlim = NULL, ylim = NULL, interactive = TRUE, medfil
 #' @name plots
 
 #' @rdname plots
+#' @export
 #' @examples
 #' plot_CO2()
 plot_CO2 = function(x, medfilt_radius = 30, ...) plot_key(x, 'CO2', medfilt_radius = medfilt_radius, ...)
 
 #' @rdname plots
+#' @export
 #' @examples
 #' plot_temp()
 plot_temp = function(x, medfilt_radius = 30, ...) plot_key(x, 'temp', medfilt_radius = medfilt_radius, ...) 
 
 #' @rdname plots
+#' @export
 #' @examples
 #' plot_RH()
 plot_RH = function(x, medfilt_radius = 30, ...) plot_key(x, 'RH', medfilt_radius = medfilt_radius, ...)
 
 #' @rdname plots
+#' @export
 #' @examples
 #' plot_batt()
 plot_batt = function(x, medfilt_radius = 30, ...) plot_key(x, 'batt', medfilt_radius = medfilt_radius, ...)

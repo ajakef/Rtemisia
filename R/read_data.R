@@ -26,10 +26,20 @@ read_one_file = function(filename){
   return(x)
 }
 
-
+#' Median filter for Rtemisia data frame
+#'
+#' Runs a median filter on all data columns (not time, location, etc)
+#'
+#' @param data Data frame from read_data()
+#' @param n integer; width (diameter) of moving median window
+#' @return median-filtered data frame
+#' @export
+#' @examples
+#' medfilt_nan(data, 5)
 medfilt_nan = function(x, n=3){
   if(is.data.frame(x)){
-    for(i in 2:19){
+    ## loop through data columns
+    for(i in which(substr(names(x), 1, 3) %in% c('CO2', 'tem', 'RH_'))){
       x[,i] = medfilt_nan(x[,i], n)
     }
     return(x)

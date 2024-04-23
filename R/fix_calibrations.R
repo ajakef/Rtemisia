@@ -64,13 +64,23 @@ fix_calibrations = function(df){
   return(df)
 }
 
+#' Identify possible calibration steps
+#'
+#' @param x Input x values
+#' @param y Input y values
+#' @return list of step x values, beginning and end y values, and step distance
+#' @export
+#' @examples
+#' find_steps()
 find_steps = function(x, y){
   min_dx = 900 # must have at least 900 seconds between identified self-calibrations
   min_dy = 3 # threshold for being a step
-  d = c(0, runmed(diff(runmed(y, 29)), 9)) # this works well empirically for JDT3bc_2 in Sept-Oct 2023
+  d = c(runmed(diff(runmed(y, 29)), 9),0) # this works well empirically for JDT3bc_2 in Sept-Oct 2023
   o = order(abs(d), decreasing = TRUE)
-  step_x = 1 # initializing with 0 means that no steps will be detected at the very beginning (good)
-  step_y = y[1]
+  step_x = 1 # initializing with 1 means that no steps will be detected at the very beginning (good)
+  step_y1 = y[1]
+  step_y2 = y[1]
+  step_dy = 0
   #browser()
   for(i in o){
     if(abs(d[i]) < min_dy){
@@ -78,15 +88,19 @@ find_steps = function(x, y){
     }
     if(all(abs(step_x - i) > min_dx)){
       step_x = c(step_x, i)
-      step_y = c(step_y, median(y[i + 50:100]) - median(y[i + -50:0])) # step begins between i and i+1 so i itself is pre-step; step settles by (i+50)
+      y1 = median(y[i + -50:0], na.rm = TRUE)
+      y2 = median(y[i + 50:100], na.rm = TRUE)
+      step_y1 = c(step_y1, y1) # step begins between i and i+1 so i itself is pre-step; step settles by (i+50)
+      step_y2 = c(step_y2, y2) # step begins between i and i+1 so i itself is pre-step; step settles by (i+50)
+      step_dy = c(step_dy, y2 - y1)
     }
   }
   o = order(step_x)[-1]
-  return(list(i=step_x[o], y=step_y[o]))
+  return(list(i=step_x[o], y1=step_y1[o], y2=step_y2[o], dy = step_dy[o]))
 }
 
 review_steps = function(x, y, steps){
-  output = list(i = numeric(), y = numeric())
+  output = list(i = numeric())
   for(i in steps$i){
     par(mfrow = c(2, 1), mar = c(3,3,3,2), mgp = c(1.75, 0.5, 0))
     N = 10
@@ -96,9 +110,12 @@ review_steps = function(x, y, steps){
       abline(v = as.numeric(x[j]), col = 'blue', lty = 'dashed', lwd = 2)
     }
     abline(v = as.numeric(x[i]), col = 'red', lwd = 2)
+    abline(h = 400, col = 'gray', lwd = 2)
     w = i + -100:150
+    k = which(steps$i == i)
+    print(c(steps$y1[k], steps$y2[k], steps$dy[k]))
     plot(x[w], y[w])
-    abline(h = c(median(y[i + 50:100]), median(y[i + -50:0])), col = 'red', lwd = 2)
+    abline(h = c(steps$y1[k], steps$y2[k]), col = 'red', lwd = 2)
     abline(v = as.numeric(x[i]), col = 'red', lwd = 2)
     title('left-click accept, right-click reject')
 
@@ -106,7 +123,9 @@ review_steps = function(x, y, steps){
     l = locator(1)
     if(length(l$x) == 1){ 
       output$i = c(output$i, i)
-      output$y = c(output$y, steps$y[steps$i == i])
+      output$dy = c(output$dy, steps$dy[k])
+      output$y1 = c(output$y1, steps$y1[k])
+      output$y2 = c(output$y2, steps$y2[k])
       print(paste('Accepted step at', x[i]))
     }else{
       print(paste('Rejected step at', x[i]))
@@ -115,18 +134,30 @@ review_steps = function(x, y, steps){
   return(output)
 }
 
+#' Undo calibration steps
+#'
+#' @param x Input x values
+#' @param y Input y values
+#' @param steps list of step information from find_steps or review_steps
+#' @return list of step x values, beginning and end y values, and step distance
+#' @export
+#' @examples
+#' correct_steps()
 correct_steps = function(x, y, steps){
+  if(length(steps$dy) == 0){
+    return(y)
+  }
   par(mfrow = c(1,1))
-  plot(x, y, pch = '.', cex=3, ylim = c(min(y, na.rm = TRUE), max(y, na.rm = TRUE)-sum(steps$y)))
+  plot(x, y, pch = '.', cex=3, ylim = c(min(y, na.rm = TRUE), max(y, na.rm = TRUE)-sum(steps$dy)))
   N = length(x)
-  for(i in 1:length(steps$y)){
+  for(i in 1:length(steps$dy)){
     j = steps$i[i]
-    y[j:(j+50)] = seq(y[j], y[j+50]-steps$y[i], length.out = 51)
-    y[(j+51):N] = y[(j+51):N] - steps$y[i]
+    y[j:(j+50)] = seq(y[j], y[j+50]-steps$dy[i], length.out = 51)
+    y[(j+51):N] = y[(j+51):N] - steps$dy[i]
   }
   points(x, y, pch = '.', col = 'red')
   legend(x = 'topright', legend=c('original', 'corrected'), lwd = c(2, 1), col = c(1,2))
-  return(list(x=x, y=y))
+  return(y)
 }
 
 #########################
