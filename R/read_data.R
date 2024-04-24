@@ -85,13 +85,25 @@ correct_times = function(data, starttime = NULL, endtime = NULL){
   return(data)
 }
 
-fix_file = function(file, starttime = NULL, endtime = NULL){
-  data = read_data(file)
+#' Correct file times
+#'
+#' Fix times for data file with initial missing GPS, and write new file
+#'
+#' @param filename string of existing file name to process
+#' @param starttime Optional; user-provided file start time as YYYYmmdd_HHMMSS string. 
+#' @param endtime Optional; user-provided file end time as YYYYmmdd_HHMMSS string
+#' @note If neither starttime nor endtime is provided, they will be calculated using GPS data found in the file. This is normally the best approach unless a file has no GPS data at all. Only one of starttime and endtime should be given; if both are provided, starttime will be ignored.
+#' @return writes output file with the normal file name based on start time and serial number
+#' @export
+#' @examples
+#' medfilt_nan(data, 5)
+fix_file_time = function(filename, starttime = NULL, endtime = NULL){
+  data = read_data(filename)
   data = correct_times(data, starttime, endtime)
-  header = scan(file, what = character(), n = 5, sep = '\n', quiet = TRUE)
+  header = scan(filename, what = character(), n = 5, sep = '\n', quiet = TRUE)
   SN = strsplit(header[3], ' ')[[1]][4]
-  new_file = paste0(strftime(data$time[1], '%Y%m%d_%H%M%S'), '_', SN, '.csv')
-  write.table(header, file = new_file, quote = FALSE, row.names = FALSE, col.names = FALSE)
-  write.table(data[names(data) != 'time'], file = new_file, append = TRUE, row.names = FALSE, quote = FALSE, sep = ',', col.names = FALSE) # leave NAs as "NA" so we can distinguish corrected files: no "na = '' "
-  print(paste('Wrote new file', new_file))
+  new_filename = paste0(strftime(data$time[1], '%Y%m%d_%H%M%S'), '_', SN, '.csv')
+  write.table(header, file = new_filename, quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(data[names(data) != 'time'], file = new_filename, append = TRUE, row.names = FALSE, quote = FALSE, sep = ',', col.names = FALSE) # leave NAs as "NA" so we can distinguish corrected files: no "na = '' "
+  print(paste('Wrote new file', new_filename))
 }

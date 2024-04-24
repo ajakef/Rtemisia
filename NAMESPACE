@@ -3,6 +3,7 @@
 export(correct_steps)
 export(find_steps)
 export(fix_calibrations)
+export(fix_file_time)
 export(medfilt_nan)
 export(plot_CO2)
 export(plot_RH)
