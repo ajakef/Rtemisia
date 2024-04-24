@@ -21,8 +21,11 @@ read_data = function(filenames){
 
 read_one_file = function(filename){
   header = c('sec_of_file', 'CO2_ppm_0', 'temp_0', 'RH_0', 'CO2_ppm_1', 'temp_1', 'RH_1', 'CO2_ppm_2', 'temp_2', 'RH_2', 'CO2_ppm_3', 'temp_3', 'RH_3', 'CO2_ppm_4', 'temp_4', 'RH_4', 'CO2_ppm_5', 'temp_5', 'RH_5', 'year', 'month', 'date', 'hour', 'min', 'sec', 'lat', 'lon', 'HDOP', 'satellites', 'batt_voltage', 'dummy')
-  x = read.table(filename, skip = 5, sep = ',', col.names = header)[,1:30]
-  x$time = as.POSIXlt(paste0(x$year, '-', x$month, '-', x$date, ' ', x$hour, ':', x$min, ':', x$sec), tz = 'GMT')
+  x = try(read.table(filename, skip = 5, sep = ',', col.names = header)[,1:30], silent = TRUE)
+  if(class(x) == 'try-error'){
+      x = read.table(filename, skip = 5, sep = ',', col.names = header[1:30])
+  }
+  x$time = as.POSIXlt(paste0(x$year, '-', x$month, '-', x$date, ' ', x$hour, ':', x$min, ':', x$sec), format = '%Y-%m-%d %H:%M:%S', tz = 'GMT')
   return(x)
 }
 
@@ -51,4 +54,44 @@ medfilt_nan = function(x, n=3){
     y[w] = NaN
     return(y)
   }
+}
+
+correct_times = function(data, starttime = NULL, endtime = NULL){
+  # look for times before first GPS fix, and correct them
+  if(is.null(starttime) && is.null(endtime)){
+    w = which(!is.na(data$lat))
+  }else{
+    w = dim(data)[1]
+    if(!is.null(endtime)){
+      endtime = as.POSIXlt(endtime, format='%Y%m%d_%H%M%S', tz = 'GMT')
+      data$time[w] = endtime
+    }else{
+      starttime = as.POSIXlt(starttime, format='%Y%m%d_%H%M%S', tz = 'GMT')
+      data$time[w] = starttime + data$sec_of_file[w] - data$sec_of_file[1]
+    }
+  }
+  if(length(w) == 0){
+    warning(paste('No GPS data found'))
+    return(data)
+  }
+  correct_sec_offset = mean((data$time - data$sec_of_file)[w])
+  data$time[1:w[1]] = data$sec_of_file[1:w[1]] + correct_sec_offset
+  data$year = as.numeric(strftime(data$time, '%Y'))
+  data$month = as.numeric(strftime(data$time, '%m'))
+  data$date = as.numeric(strftime(data$time, '%d'))
+  data$hour = as.numeric(strftime(data$time, '%H'))
+  data$min = as.numeric(strftime(data$time, '%M'))
+  data$sec = as.numeric(strftime(data$time, '%S'))
+  return(data)
+}
+
+fix_file = function(file, starttime = NULL, endtime = NULL){
+  data = read_data(file)
+  data = correct_times(data, starttime, endtime)
+  header = scan(file, what = character(), n = 5, sep = '\n', quiet = TRUE)
+  SN = strsplit(header[3], ' ')[[1]][4]
+  new_file = paste0(strftime(data$time[1], '%Y%m%d_%H%M%S'), '_', SN, '.csv')
+  write.table(header, file = new_file, quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(data[names(data) != 'time'], file = new_file, append = TRUE, row.names = FALSE, quote = FALSE, sep = ',', col.names = FALSE) # leave NAs as "NA" so we can distinguish corrected files: no "na = '' "
+  print(paste('Wrote new file', new_file))
 }
