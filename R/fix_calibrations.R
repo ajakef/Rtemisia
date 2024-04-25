@@ -82,7 +82,11 @@ find_steps = function(x, y){
   step_y2 = y[1]
   step_dy = 0
   #browser()
-  for(i in o){
+  for(i in o){ #loop through possible steps in decreasing height order
+    ## first, verify that the possible step is not at a data gap
+    if(difftime(x[min(length(x), i + 10)], x[max(1, i - 10)], units = 'hours') > 1){
+      next
+    }
     if(abs(d[i]) < min_dy){
       break # done looking; all other points are too small to be a step
     }
@@ -103,6 +107,8 @@ review_steps = function(x, y, steps){
   output = list(i = numeric())
   for(i in steps$i){
     par(mfrow = c(2, 1), mar = c(3,3,3,2), mgp = c(1.75, 0.5, 0))
+    
+    ## zoom-out view, with decimated data for efficiency
     N = 10
     w = N * (1:(length(x)/N))
     plot(x[w], y[w], pch = '.')
@@ -111,7 +117,10 @@ review_steps = function(x, y, steps){
     }
     abline(v = as.numeric(x[i]), col = 'red', lwd = 2)
     abline(h = 400, col = 'gray', lwd = 2)
-    w = i + -100:150
+
+    ## zoom-in view
+    #w = i + -100:150 # if there's a data gap nearby, this shows both sides of the data gap (bad)
+    w = which(((x - x[i+2]) > -500) & ((x - x[i+2]) < 750))
     k = which(steps$i == i)
     print(c(steps$y1[k], steps$y2[k], steps$dy[k]))
     plot(x[w], y[w])

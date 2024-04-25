@@ -40,7 +40,9 @@ plot_key = function(x, key, xlim = NULL, ylim = NULL, interactive = TRUE, medfil
     points(x$time[w], x[[i]][w], col = which(i == key_indices), pch = '.')
   }
   legend('topright', legend = names(x)[key_indices], lty = 1, col = 1:length(key_indices))
-  if(key == 'CO2') abline(h=400)
+  if(key == 'CO2') abline(h=400, lty = 'dotted')
+  if(key == 'temp') abline(h=0, lty = 'dotted')
+  if(key == 'RH') abline(h=c(0, 100), lty = 'dotted')
   if(interactive){
     title('2 left clicks to zoom; 1 left 1 right to un-zoom; 1 right to quit')
     l = locator(2)
