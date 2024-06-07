@@ -4,13 +4,24 @@
 \alias{fix_calibrations}
 \title{Correct calibration steps for all sensors}
 \usage{
-fix_calibrations(df)
+fix_calibrations(
+  df,
+  output_file = NULL,
+  corrections_file = NULL,
+  key_pattern = "CO2"
+)
 }
 \arguments{
 \item{df}{Data frame to plot (output of [read_data()])}
+
+\item{output_file}{.csv file to write as output (default none)}
+
+\item{corrections_file}{.RData file to save corrections (default none)}
+
+\item{key_pattern}{search key to identify channels to correct (e.g., CO2_ppm_[01])}
 }
 \value{
-data frame with calibration steps corrected
+data frame with calibration steps corrected, optionally with output files written
 }
 \description{
 Data may include approximately weekly "steps" where the CO2 reading changes 

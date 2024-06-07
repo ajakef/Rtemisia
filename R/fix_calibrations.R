@@ -7,6 +7,9 @@
 #' prevent false positives from being counted.
 #'
 #' @param df Data frame to plot (output of [read_data()])
+#' @param output_file .csv file to write as output (default none)
+#' @param corrections_file .RData file to save corrections (default none)
+#' @param key_pattern search key to identify channels to correct (e.g., CO2_ppm_[01])
 #' @details This function uses a very basic GUI to accept or reject detected
 #' steps. For each step, left-click the plot to accept it, or right-click to
 #' reject. Reject rates of 50% or more are plausible and not cause for concern.
@@ -17,19 +20,17 @@
 #' for CO2 data, not for temperature or humidity. Note that ctrl-c does not
 #' work immediately in interactive mode; it takes effect after the next right
 #' click.
-#' @return data frame with calibration steps corrected
+#' @return data frame with calibration steps corrected, optionally with output files written
 #' @export
 #' @examples
 #' fix_calibration()
 
 
-fix_calibrations = function(df){
+fix_calibrations = function(df, output_file = NULL, corrections_file = NULL, key_pattern = 'CO2'){
   steps_corrected = list()
-  key_indices = grep('CO2', names(df))
+  key_indices = grep(key_pattern, names(df))
   keys = names(df)[key_indices]
-
   for(key in keys){
-    #key = paste0('CO2_ppm_', i)
     print(paste('Correcting channel', key))
     y = df[[key]]
     x = df$time
@@ -61,6 +62,14 @@ fix_calibrations = function(df){
     steps_corrected[[key]] = list(x = x[steps_reviewed$i], y = steps_reviewed$y)
   }
   attr(df, 'steps_corrected') = steps_corrected
+  if(!is.null(corrections_file) && is.character(corrections_file)){
+    print('Writing corrections file')
+    save(steps_corrected, file = corrections_file)
+  }
+  if(!is.null(output_file) && is.character(output_file)){
+    print('Writing output data file')
+    write.table(df, file = output_file, quote = FALSE, row.names = FALSE, col.names = TRUE, sep = ',')
+  }
   return(df)
 }
 
@@ -73,7 +82,7 @@ fix_calibrations = function(df){
 #' @examples
 #' find_steps()
 find_steps = function(x, y){
-  min_dx = 900 # must have at least 900 seconds between identified self-calibrations
+  min_dx = 14400 # must have at least this much time between identified self-calibrations
   min_dy = 3 # threshold for being a step
   d = c(runmed(diff(runmed(y, 29)), 9),0) # this works well empirically for JDT3bc_2 in Sept-Oct 2023
   o = order(abs(d), decreasing = TRUE)
@@ -90,10 +99,14 @@ find_steps = function(x, y){
     if(abs(d[i]) < min_dy){
       break # done looking; all other points are too small to be a step
     }
-    if(all(abs(step_x - i) > min_dx)){
+    ## make sure it's far from all previously detected steps
+    if(any(abs(step_x - i) <= min_dx)){
+      next
+    }
+    y1 = median(y[i + -50:0], na.rm = TRUE)
+    y2 = median(y[i + 50:100], na.rm = TRUE)
+    if(!is.na(y1) && !is.na(y2)){
       step_x = c(step_x, i)
-      y1 = median(y[i + -50:0], na.rm = TRUE)
-      y2 = median(y[i + 50:100], na.rm = TRUE)
       step_y1 = c(step_y1, y1) # step begins between i and i+1 so i itself is pre-step; step settles by (i+50)
       step_y2 = c(step_y2, y2) # step begins between i and i+1 so i itself is pre-step; step settles by (i+50)
       step_dy = c(step_dy, y2 - y1)
@@ -113,9 +126,17 @@ review_steps = function(x, y, steps){
     w = N * (1:(length(x)/N))
     plot(x[w], y[w], pch = '.')
     for(j in steps$i){
-      abline(v = as.numeric(x[j]), col = 'blue', lty = 'dashed', lwd = 2)
+      if(j > i){
+        abline(v = as.numeric(x[j]), col = 'black', lty = 'dashed', lwd = 2) 
+      }else if(j == i){
+        abline(v = as.numeric(x[j]), col = 'red', lty = 'dashed', lwd = 2) 
+      }else if(j %in% output$i){
+        abline(v = as.numeric(x[j]), col = 'blue', lty = 'dashed', lwd = 2) 
+      }else{
+        abline(v = as.numeric(x[j]), col = 'gray', lty = 'dashed', lwd = 2) 
+      }  
     }
-    abline(v = as.numeric(x[i]), col = 'red', lwd = 2)
+    #abline(v = as.numeric(x[i]), col = 'red', lwd = 2)
     abline(h = 400, col = 'gray', lwd = 2)
 
     ## zoom-in view
@@ -151,7 +172,7 @@ review_steps = function(x, y, steps){
 #' @return list of step x values, beginning and end y values, and step distance
 #' @export
 #' @examples
-#' correct_steps()
+#' correct_steps(x, y)
 correct_steps = function(x, y, steps){
   if(length(steps$dy) == 0){
     return(y)
@@ -161,7 +182,10 @@ correct_steps = function(x, y, steps){
   N = length(x)
   for(i in 1:length(steps$dy)){
     j = steps$i[i]
-    y[j:(j+50)] = seq(y[j], y[j+50]-steps$dy[i], length.out = 51)
+    y1 = median(y[j + (-8:0)], na.rm = TRUE)
+    y2 = median(y[j + (48:52)], na.rm = TRUE)
+    if(is.na(y1) || is.na(y2)) browser()
+    y[j:(j+50)] = seq(y1, y2-steps$dy[i], length.out = 51)
     y[(j+51):N] = y[(j+51):N] - steps$dy[i]
   }
   points(x, y, pch = '.', col = 'red')
