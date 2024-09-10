@@ -4,6 +4,25 @@ downsample_trace = function(data, t1, t2, dt_out_sec, field, plot_results = FALS
     if (is.character(data)) {
         data = read_data(data)
     }
+    ## Parse start and end times
+    tryFormat = c( '%Y-%m-%d %H:%M:%S',
+		   '%Y-%m-%dT%H:%M:%S',
+    		   '%Y-%m-%d_%H:%M:%S',
+		   '%Y-%m-%d %H:%M',
+		   '%Y-%m-%dT%H:%M',
+		   '%Y-%m-%d_%H:%M',
+		   '%Y%m%d %H%M%S',
+		   '%Y%m%d_%H%M%S',
+		   '%Y%m%d %H%M',
+		   '%Y%m%d_%H%M',
+		   '%Y-%m-%d',
+		   '%Y%m%d')
+    if(is.character(t1)){
+      t1 = as.POSIXlt(t1, tryFormat = tryFormat, tz = 'GMT')
+    }
+    if(is.character(t2)){
+      t2 = as.POSIXlt(t2, tryFormat = tryFormat, tz = 'GMT')
+    }
     ## Throw out impossible data
     t_in = data$time
     y_in = data[[field]]
