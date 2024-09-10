@@ -7,4 +7,5 @@ Author: Jake Anderson
 Maintainer: Jake Anderson <jacobanderson152@boisestate.edu>
 Description: Read data files for Artemis CO2 logger
 License: GPL
+Encoding: UTF-8
 RoxygenNote: 7.2.3

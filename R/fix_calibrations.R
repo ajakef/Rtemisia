@@ -82,6 +82,10 @@ fix_calibrations = function(df, output_file = NULL, corrections_file = NULL, key
 #' @examples
 #' find_steps()
 find_steps = function(x, y){
+  # if x isn't a time stamp, change it so it is
+  if(!('POSIXt' %in% class(x)) && class(x) == 'numeric'){
+    x = x + as.POSIXlt('2024-01-01', tz = 'GMT')
+  }
   min_dx = 14400 # must have at least this much time between identified self-calibrations
   min_dy = 3 # threshold for being a step
   d = c(runmed(diff(runmed(y, 29)), 9),0) # this works well empirically for JDT3bc_2 in Sept-Oct 2023

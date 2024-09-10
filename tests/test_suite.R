@@ -34,3 +34,8 @@ stopifnot(all(is_approx(y_corrected, 100))) # deviation from y=100 should be <1%
 fix_file_time('Rtemisia/data/20000101_000009_10001.csv') # fix a file that lacked GPS at first
 x = read_data('20240220_160959_10001.csv') # make sure newly-created corrected file can be read
 system('rm 20240220_160959_10001.csv') # remove newly-created corrected file
+
+# downsampling test
+x = read_data('Rtemisia/data/20231001_000016_10001.csv') # make sure newly-created corrected file can be read
+downsample(x, t1 = '20231001_0600', t2 = '20231001_1800', dt_out_sec = 15*60)
+downsample('Rtemisia/data/20231001_000016_10001.csv', t1 = '20231001_0600', t2 = '20231001_1800', dt_out_sec = 15*60)

@@ -57,7 +57,7 @@ plot_key = function(x, key, xlim = NULL, ylim = NULL, interactive = TRUE, medfil
     }else{ # should never happen
       print(l)
     }
-    plot_key(x, key, xlim = xlimtmp, ylim = ylimtmp, interactive = TRUE, ...)
+    plot_key(x, key, xlim = xlimtmp, ylim = ylimtmp, interactive = TRUE, medfilt_radius = medfilt_radius, ...)
   }
 }
 
