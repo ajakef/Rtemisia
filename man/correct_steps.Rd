@@ -20,5 +20,5 @@ list of step x values, beginning and end y values, and step distance
 Undo calibration steps
 }
 \examples{
-correct_steps(x, y)
+correct_steps(1:100, c(rep(0, 30), rep(1, 70)), list(i=30, dy=1))
 }

@@ -1,4 +1,4 @@
-library(signal)
+require(signal)
 downsample_trace = function(data, t1, t2, dt_out_sec, field, plot_results = FALSE){
     ## Parse the 'data' input
     if (is.character(data)) {
@@ -71,18 +71,18 @@ downsample = function(data, t1, t2, dt_out_sec, fields = character()){
         data = read_data(data)
     }
     ## Parse start and end times
-    tryFormat = c('%Y-%m-%d',
-                   '%Y-%m-%d %H:%M:%s',
+    tryFormat = c( '%Y-%m-%d %H:%M:%s',
 		   '%Y-%m-%dT%H:%M:%s',
     		   '%Y-%m-%d_%H:%M:%s',
 		   '%Y-%m-%d %H:%M',
 		   '%Y-%m-%dT%H:%M',
 		   '%Y-%m-%d_%H:%M',
-		   '%Y%m%d',
 		   '%Y%m%d %H%M%S',
 		   '%Y%m%d_%H%M%S',
 		   '%Y%m%d %H%M',
-		   '%Y%m%d_%H%M')
+		   '%Y%m%d_%H%M',
+		   '%Y-%m-%d',
+		   '%Y%m%d')
     if(is.character(t1)){
       t1 = as.POSIXlt(t1, tryFormat = tryFormat, tz = 'GMT')
     }

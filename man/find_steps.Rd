@@ -18,5 +18,5 @@ list of step x values, beginning and end y values, and step distance
 Identify possible calibration steps
 }
 \examples{
-find_steps()
+steps = find_steps(1:100, c(rep(0, 30), rep(1, 70)))
 }

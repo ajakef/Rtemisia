@@ -4,12 +4,12 @@
 \alias{medfilt_nan}
 \title{Median filter for Rtemisia data frame}
 \usage{
-medfilt_nan(x, n = 3)
+medfilt_nan(data, n = 3)
 }
 \arguments{
-\item{n}{integer; width (diameter) of moving median window}
-
 \item{data}{Data frame from read_data()}
+
+\item{n}{integer; width (diameter) of moving median window}
 }
 \value{
 median-filtered data frame

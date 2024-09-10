@@ -23,7 +23,7 @@
 #' @return data frame with calibration steps corrected, optionally with output files written
 #' @export
 #' @examples
-#' fix_calibration()
+#' fix_calibrations()
 
 
 fix_calibrations = function(df, output_file = NULL, corrections_file = NULL, key_pattern = 'CO2'){
@@ -80,10 +80,10 @@ fix_calibrations = function(df, output_file = NULL, corrections_file = NULL, key
 #' @return list of step x values, beginning and end y values, and step distance
 #' @export
 #' @examples
-#' find_steps()
+#' steps = find_steps(1:100, c(rep(0, 30), rep(1, 70)))
 find_steps = function(x, y){
   # if x isn't a time stamp, change it so it is
-  if(!('POSIXt' %in% class(x)) && class(x) == 'numeric'){
+  if(!('POSIXt' %in% class(x))){
     x = x + as.POSIXlt('2024-01-01', tz = 'GMT')
   }
   min_dx = 14400 # must have at least this much time between identified self-calibrations
@@ -176,7 +176,7 @@ review_steps = function(x, y, steps){
 #' @return list of step x values, beginning and end y values, and step distance
 #' @export
 #' @examples
-#' correct_steps(x, y)
+#' correct_steps(1:100, c(rep(0, 30), rep(1, 70)), list(i=30, dy=1))
 correct_steps = function(x, y, steps){
   if(length(steps$dy) == 0){
     return(y)

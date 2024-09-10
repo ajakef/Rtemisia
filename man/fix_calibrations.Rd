@@ -43,5 +43,5 @@ work immediately in interactive mode; it takes effect after the next right
 click.
 }
 \examples{
-fix_calibration()
+fix_calibrations()
 }

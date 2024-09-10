@@ -39,18 +39,18 @@ read_one_file = function(filename){
 #' @export
 #' @examples
 #' medfilt_nan(data, 5)
-medfilt_nan = function(x, n=3){
-  if(is.data.frame(x)){
+medfilt_nan = function(data, n=3){
+  if(is.data.frame(data)){
     ## loop through data columns
-    for(i in which(substr(names(x), 1, 3) %in% c('CO2', 'tem', 'RH_'))){
-      x[,i] = medfilt_nan(x[,i], n)
+    for(i in which(substr(names(data), 1, 3) %in% c('CO2', 'tem', 'RH_'))){
+      data[,i] = medfilt_nan(data[,i], n)
     }
-    return(x)
+    return(data)
   }else{
     # n is median filter *diameter*, not radius. Must be odd.
-    w = which(is.na(x))
-    x[w] = median(x, na.rm = TRUE)
-    y = runmed(x, n)
+    w = which(is.na(data))
+    data[w] = median(data, na.rm = TRUE)
+    y = runmed(data, n)
     y[w] = NaN
     return(y)
   }
