@@ -1,4 +1,4 @@
-library(signal)
+require(signal)
 downsample_trace = function(data, t1, t2, dt_out_sec, field, plot_results = FALSE){
     ## Parse the 'data' input
     if (is.character(data)) {
