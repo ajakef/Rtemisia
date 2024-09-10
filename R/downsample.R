@@ -90,9 +90,9 @@ downsample = function(data, t1, t2, dt_out_sec, fields = character()){
         data = read_data(data)
     }
     ## Parse start and end times
-    tryFormat = c( '%Y-%m-%d %H:%M:%s',
-		   '%Y-%m-%dT%H:%M:%s',
-    		   '%Y-%m-%d_%H:%M:%s',
+    tryFormat = c( '%Y-%m-%d %H:%M:%S',
+		   '%Y-%m-%dT%H:%M:%S',
+    		   '%Y-%m-%d_%H:%M:%S',
 		   '%Y-%m-%d %H:%M',
 		   '%Y-%m-%dT%H:%M',
 		   '%Y-%m-%d_%H:%M',
