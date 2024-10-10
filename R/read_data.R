@@ -20,13 +20,26 @@ read_data = function(filenames){
 
 
 read_one_file = function(filename){
-  header = c('sec_of_file', 'CO2_ppm_0', 'temp_0', 'RH_0', 'CO2_ppm_1', 'temp_1', 'RH_1', 'CO2_ppm_2', 'temp_2', 'RH_2', 'CO2_ppm_3', 'temp_3', 'RH_3', 'CO2_ppm_4', 'temp_4', 'RH_4', 'CO2_ppm_5', 'temp_5', 'RH_5', 'year', 'month', 'date', 'hour', 'min', 'sec', 'lat', 'lon', 'HDOP', 'satellites', 'batt_voltage', 'dummy')
-  x = try(read.table(filename, skip = 5, sep = ',', col.names = header)[,1:30], silent = TRUE)
-  if(class(x) == 'try-error'){
+  ## start by looking up the format. format 0 was inconsistent so needs special treatment.
+  format = get_format_firmware(filename)[1]
+  if(format == '0'){
+    header = c('sec_of_file', 'CO2_ppm_0', 'temp_0', 'RH_0', 'CO2_ppm_1', 'temp_1', 'RH_1', 'CO2_ppm_2', 'temp_2', 'RH_2', 'CO2_ppm_3', 'temp_3', 'RH_3', 'CO2_ppm_4', 'temp_4', 'RH_4', 'CO2_ppm_5', 'temp_5', 'RH_5', 'year', 'month', 'date', 'hour', 'min', 'sec', 'lat', 'lon', 'HDOP', 'satellites', 'batt_voltage', 'dummy')
+    x = try(read.table(filename, skip = 5, sep = ',', col.names = header)[,1:30], silent = TRUE)
+    if(class(x) == 'try-error'){
       x = read.table(filename, skip = 5, sep = ',', col.names = header[1:30])
+    }
+  }else if(format == '1'){
+    x = try(read.table(filename, skip = 4, sep = ',', header = TRUE))
+    if(class(x) == 'try-error'){
+      x = try(read.table(filename, skip = 5, sep = ',', header = TRUE))
+    }   
   }
   x$time = as.POSIXlt(paste0(x$year, '-', x$month, '-', x$date, ' ', x$hour, ':', x$min, ':', x$sec), format = '%Y-%m-%d %H:%M:%S', tz = 'GMT')
   return(x)
+}
+
+get_format_firmware = function(filename){
+  return(scan(filename, nlines = 2, what = character())[c(2,4)])
 }
 
 #' Median filter for Rtemisia data frame

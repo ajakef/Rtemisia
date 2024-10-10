@@ -1,8 +1,8 @@
 Package: Rtemisia
 Type: Package
 Title: What the package does (short line)
-Version: 0.35
-Date: 2024-09-09
+Version: 0.4
+Date: 2024-10-10
 Author: Jake Anderson
 Maintainer: Jake Anderson <jacobanderson152@boisestate.edu>
 Description: This packages reads data files for Artemis CO2 logger and does some basic data processing and plotting routines.
